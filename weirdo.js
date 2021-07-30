@@ -1,19 +1,23 @@
 class WeirdoJS {
-  constructor() {
+  constructor(showClearMessage = true) {
     this.boilerplate = `<div id = 'console'></div><br>><input id = 'prompto'> </input>`;
     this.hasInjected = false;
     this.commands = {}
     this.command = '';
     this.dynams = [];
+    this.showClearMessage = showClearMessage;
 
-    this.vars = {};
+    this.lsVars = [];
   }
-  setOrInitVar(varName, varValue) {
-    this.vars[varName] = varValue;
+
+  editVar(varName, val) {
+    this.lsVars[varName] = val;
   }
+
   getVar(varName) {
-    return this.vars[varName];
+    return this.lsVars[varName];
   }
+
   itemInList(it, list) {
     let inl = false;
     for (var i = 0; i <= list.length - 1; i++) {
@@ -23,6 +27,23 @@ class WeirdoJS {
     }
     return inl
   }
+
+
+  localUpdate() {
+    for (var oof in this.lsVars) {
+      let value = this.lsVars[oof];
+      localStorage.setItem(oof, JSON.stringify(value));
+    }
+  }
+
+  getLsVar(varName) {
+    let res =  localStorage.getItem(varName);
+    if (res != null) {
+      res = JSON.parse(res);
+    }
+    return res;
+  }
+
   process() {
     let cmd = this.command;
 
@@ -39,6 +60,7 @@ class WeirdoJS {
       this.commands[cmd]()
     }
   }
+
   init() {
     if (!this.hasInjected) {
       document.body.innerHTML += this.boilerplate;
@@ -57,6 +79,7 @@ class WeirdoJS {
       console.error("You injected this boilerplate once, I wouldn't recommend injecting it twice.")
     }
   }
+
   addNewCommand(commandName, effect) {
     this.commands[commandName] = effect;
   }
@@ -64,8 +87,10 @@ class WeirdoJS {
     let toInject = document.createElement('span');
     toInject.innerHTML = '<br>' + text;
     toInject.style.color = color;
+    
     this.console.appendChild(toInject);
   }
+
   applyCSS() {
     this.console.style.height = "500px";
     document.body.style.overflow = 'hidden';
@@ -96,7 +121,19 @@ class WeirdoJS {
     this.commands[cmdRoot] = function (par) { effect(par) };
     this.dynams.push(cmdRoot);
   }
+  wait(ms) {
+    return new Promise(
+      resolve => setTimeout(resolve, ms);
+    )
+  } 
   clean() {
     this.console.innerHTML = "";
+    if (this.showClearMessage) {
+      this.insert("Console Cleared", "lightgray");
+    }
+  }
+  parse(thing, sep) {
+    return thing.split(sep);
   }
 }
+
