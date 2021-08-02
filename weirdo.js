@@ -1,9 +1,12 @@
 class WeirdoJS {
-  constructor(showClearMessage = true) {
-    this.boilerplate = `<div id = 'console'></div><br>><input id = 'prompto'> </input>`;
+  constructor(showClearMessage = true, debug = false) {
+    this.boilerplate = `<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet"><div id = 'console'></div><br>><input id = 'prompto'> </input>`;
     this.hasInjected = false;
     this.commands = {}
     this.command = '';
+    this.debug = debug;
     this.dynams = [];
     this.showClearMessage = showClearMessage;
 
@@ -16,6 +19,10 @@ class WeirdoJS {
 
   getVar(varName) {
     return this.lsVars[varName];
+  }
+
+  error(errorName) {
+    this.insert(errorName, "red");
   }
 
   itemInList(it, list) {
@@ -37,7 +44,7 @@ class WeirdoJS {
   }
 
   getLsVar(varName) {
-    let res =  localStorage.getItem(varName);
+    let res = localStorage.getItem(varName);
     if (res != null) {
       res = JSON.parse(res);
     }
@@ -47,7 +54,9 @@ class WeirdoJS {
   process() {
     let cmd = this.command;
 
-    console.log(this.itemInList(cmd.split(':')[0], this.dynams))
+    if (this.debug) {
+      console.log(this.itemInList(cmd.split(':')[0], this.dynams))
+    }
 
     if (this.itemInList(cmd.split(':')[0], this.dynams)) {
       this.commands[cmd.split(':')[0]](cmd.split(":")[1])
@@ -70,7 +79,9 @@ class WeirdoJS {
       this.prompt.addEventListener('keydown', function (event) {
         if (event.keyCode == 13) {
           copy.command = this.value;
-          console.log("The keydown listener fired.")
+          if (this.debug) {
+            console.log("The keydown listener fired.")
+          }
           copy.process();
           this.value = "";
         }
@@ -87,7 +98,7 @@ class WeirdoJS {
     let toInject = document.createElement('span');
     toInject.innerHTML = '<br>' + text;
     toInject.style.color = color;
-    
+
     this.console.appendChild(toInject);
   }
 
@@ -123,9 +134,9 @@ class WeirdoJS {
   }
   wait(ms) {
     return new Promise(
-      resolve => setTimeout(resolve, ms);
+      resolve => setTimeout(resolve, ms)
     )
-  } 
+  }
   clean() {
     this.console.innerHTML = "";
     if (this.showClearMessage) {
